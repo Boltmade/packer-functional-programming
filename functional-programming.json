@@ -1,0 +1,45 @@
+{
+  "builders": [{
+    "type": "virtualbox-iso",
+    "virtualbox_version_file": ".vbox_version",
+    "headless": false,
+
+    "guest_os_type": "Debian",
+    "guest_additions_mode": "disable",
+
+    "disk_size": 40960,
+
+    "iso_url": "http://cdimage.debian.org/debian-cd/7.6.0/i386/iso-cd/debian-7.6.0-i386-netinst.iso",
+    "iso_checksum_type": "sha512",
+    "iso_checksum": "c361f5a1fa6adef9dbae11df96f0967ea924308c58af51e6d7cb765e9c77b9b6a8d1340a8a08eddb365197c7a9ee94f46fdbe14ba5b15350ead392d77884bb90",
+
+    "http_directory": "http",
+
+    "boot_command": ["<esc><wait>auto url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <enter><wait>"],
+
+    "ssh_username": "vagrant",
+    "ssh_password": "vagrant",
+    "ssh_port": 22,
+    "ssh_wait_timeout": "10000s",
+
+    "vboxmanage": [
+      ["modifyvm", "{{.Name}}", "--memory", "512"],
+      ["modifyvm", "{{.Name}}", "--cpus", "1"]
+    ],
+
+    "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p"
+  }],
+  "post-processors": [{
+    "output": "build/functional-programming.box",
+    "keep_input_artifact": true,
+    "type": "vagrant"
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+    "scripts": [
+      "scripts/vagrant.sh",
+      "scripts/compact.sh"
+    ]
+  }]
+}
